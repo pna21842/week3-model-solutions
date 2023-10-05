@@ -6,6 +6,7 @@
 #pragma comment(lib,"lib\\glfw3.lib")
 #pragma comment(lib,"lib\\glew32s.lib")
 #pragma comment(lib,"lib\\glew32.lib")
+#pragma comment(lib,"lib\\FreeImage.lib")
 
 #define GLEW_STATIC
 #include "GL/glew.h" 
@@ -16,4 +17,6 @@
 #include <assert.h>
 #include <math.h>
 #include <iostream>
+#include <string>
+#include "FreeImage\\FreeImage.h"
 

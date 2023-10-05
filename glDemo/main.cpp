@@ -1,8 +1,13 @@
 
 #include "core.h"
 
+using namespace std;
+
 
 // global variables
+
+GLuint playerTexture;
+
 
 // Window size
 const unsigned int initWidth = 512;
@@ -56,7 +61,52 @@ int main() {
 	resizeWindow(window, initWidth, initHeight);
 
 	// Initialise scene - geometry and shaders etc
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
+	glClearColor(1.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
+
+
+	//
+	// Setup textures
+	//
+
+	// Load image file from disk
+	auto textureImageFile = string("Assets\\Textures\\player1_ship.png");
+	FIBITMAP* bitmap = FreeImage_Load(FIF_PNG, textureImageFile.c_str(), BMP_DEFAULT);
+
+	if (bitmap) {
+
+		// If image loaded, setup new texture object in OpenGL
+		glGenTextures(1, &playerTexture); // can create more than 1!
+		glBindTexture(GL_TEXTURE_2D, playerTexture);
+
+		if (playerTexture) {
+
+			// Setup texture image properties
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RGBA,
+				FreeImage_GetWidth(bitmap),
+				FreeImage_GetHeight(bitmap),
+				0,
+				GL_BGRA,
+				GL_UNSIGNED_BYTE,
+				FreeImage_GetBits(bitmap));
+
+			// Setup texture filter and wrap properties
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		}
+
+		// Once the texture has been setup, the image data is copied into OpenGL.  We no longer need the originally loaded image
+		FreeImage_Unload(bitmap);
+	}
+	else {
+
+		cout << "Error loading image!" << endl;
+	}
+
 
 
 	//
@@ -90,6 +140,30 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Render objects here...
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, playerTexture);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glBegin(GL_QUADS);
+
+	glTexCoord2f(0.0f, 1.0f);
+	glVertex2f(-0.5f, 0.5f);
+
+	glTexCoord2f(1.0f, 1.0f);
+	glVertex2f(0.5f, 0.5f);
+
+	glTexCoord2f(1.0f, 0.0f);
+	glVertex2f(0.5f, -0.5f);
+
+	glTexCoord2f(0.0f, 0.0f);
+	glVertex2f(-0.5f, -0.5f);
+
+	glEnd();
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
 }
 
 

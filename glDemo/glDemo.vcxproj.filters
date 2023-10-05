@@ -27,6 +27,12 @@
     <ClInclude Include="core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FreeImage\FreeImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FreeImage\FreeImagePlus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
