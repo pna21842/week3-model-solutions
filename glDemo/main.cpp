@@ -6,6 +6,7 @@ using namespace std;
 
 // global variables
 
+// Example exture object
 GLuint playerTexture;
 
 
@@ -61,7 +62,7 @@ int main() {
 	resizeWindow(window, initWidth, initHeight);
 
 	// Initialise scene - geometry and shaders etc
-	glClearColor(1.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
 
 
 	//
@@ -76,9 +77,10 @@ int main() {
 
 		// If image loaded, setup new texture object in OpenGL
 		glGenTextures(1, &playerTexture); // can create more than 1!
-		glBindTexture(GL_TEXTURE_2D, playerTexture);
-
+		
 		if (playerTexture) {
+
+			glBindTexture(GL_TEXTURE_2D, playerTexture);
 
 			// Setup texture image properties
 			glTexImage2D(
@@ -142,9 +144,6 @@ void renderScene()
 	// Render objects here...
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, playerTexture);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glBegin(GL_QUADS);
 
