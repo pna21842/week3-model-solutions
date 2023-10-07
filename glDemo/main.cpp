@@ -6,6 +6,7 @@ using namespace std;
 
 // global variables
 
+// Example texture
 GLuint playerTexture;
 
 
@@ -106,7 +107,6 @@ int main() {
 
 		cout << "Error loading image!" << endl;
 	}
-
 
 
 	//
