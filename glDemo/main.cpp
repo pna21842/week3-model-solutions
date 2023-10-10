@@ -1,20 +1,30 @@
 
 #include "core.h"
+#include "MyShapes.h"
+#include "RandomPoints.h"
 
 using namespace std;
 
+//
+// Global variables
+//
 
-// global variables
-
-// Example texture
+// Example textures
 GLuint playerTexture;
+GLuint blockTexture;
 
+// Model solution for random points walkthrough
+RandomPoints points = RandomPoints(100);
 
 // Window size
 const unsigned int initWidth = 512;
 const unsigned int initHeight = 512;
 
+
+//
 // Function prototypes
+//
+GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType, GLuint srcPixelFormat = GL_BGRA);
 void renderScene();
 void resizeWindow(GLFWwindow* window, int width, int height);
 void keyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -27,7 +37,6 @@ int main() {
 	// 1. Initialisation
 	//
 	
-
 	// Initialise glfw and setup window
 	glfwInit();
 
@@ -62,51 +71,19 @@ int main() {
 	resizeWindow(window, initWidth, initHeight);
 
 	// Initialise scene - geometry and shaders etc
-	glClearColor(1.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // setup background colour to be black
 
 
 	//
 	// Setup textures
 	//
 
-	// Load image file from disk
-	auto textureImageFile = string("Assets\\Textures\\player1_ship.png");
-	FIBITMAP* bitmap = FreeImage_Load(FIF_PNG, textureImageFile.c_str(), BMP_DEFAULT);
+	// Setup textures
+	playerTexture = loadTexture(string("Assets\\Textures\\player1_ship.png"), FIF_PNG, GL_BGRA);
+	blockTexture = loadTexture(string("Assets\\Textures\\mcblock01.png"), FIF_PNG, GL_BGRA);
 
-	if (bitmap) {
-
-		// If image loaded, setup new texture object in OpenGL
-		glGenTextures(1, &playerTexture); // can create more than 1!
-		glBindTexture(GL_TEXTURE_2D, playerTexture);
-
-		if (playerTexture) {
-
-			// Setup texture image properties
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_RGBA,
-				FreeImage_GetWidth(bitmap),
-				FreeImage_GetHeight(bitmap),
-				0,
-				GL_BGRA,
-				GL_UNSIGNED_BYTE,
-				FreeImage_GetBits(bitmap));
-
-			// Setup texture filter and wrap properties
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-
-		// Once the texture has been setup, the image data is copied into OpenGL.  We no longer need the originally loaded image
-		FreeImage_Unload(bitmap);
-	}
-	else {
-
-		cout << "Error loading image!" << endl;
-	}
+	// Setup random points
+	points = RandomPoints(100);
 
 
 	//
@@ -132,6 +109,51 @@ int main() {
 }
 
 
+GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType, GLuint srcPixelFormat) {
+
+	GLuint newTexture = 0;
+
+	FIBITMAP* bitmap = FreeImage_Load(srcImageType, filename.c_str(), BMP_DEFAULT);
+
+	if (bitmap) {
+
+		// If image loaded, setup new texture object in OpenGL
+		glGenTextures(1, &newTexture); // can create more than 1!
+
+		if (newTexture) {
+
+			glBindTexture(GL_TEXTURE_2D, newTexture);
+
+			// Setup texture image properties
+			glTexImage2D(
+				GL_TEXTURE_2D,
+				0,
+				GL_RGBA,
+				FreeImage_GetWidth(bitmap),
+				FreeImage_GetHeight(bitmap),
+				0,
+				srcPixelFormat,
+				GL_UNSIGNED_BYTE,
+				FreeImage_GetBits(bitmap));
+
+			// Setup texture filter and wrap properties
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		}
+
+		// Once the texture has been setup, the image data is copied into OpenGL.  We no longer need the originally loaded image
+		FreeImage_Unload(bitmap);
+	}
+	else {
+
+		cout << "Error loading image " << filename << endl;
+	}
+
+	return newTexture;
+}
+
 
 // renderScene - function to render the current scene
 void renderScene()
@@ -139,31 +161,10 @@ void renderScene()
 	// Clear the rendering window
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Render objects here...
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, playerTexture);
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glBegin(GL_QUADS);
-
-	glTexCoord2f(0.0f, 1.0f);
-	glVertex2f(-0.5f, 0.5f);
-
-	glTexCoord2f(1.0f, 1.0f);
-	glVertex2f(0.5f, 0.5f);
-
-	glTexCoord2f(1.0f, 0.0f);
-	glVertex2f(0.5f, -0.5f);
-
-	glTexCoord2f(0.0f, 0.0f);
-	glVertex2f(-0.5f, -0.5f);
-
-	glEnd();
-
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
+	//points.render();
+	points.renderTexturedPoints(playerTexture);
+	//drawTexturedQuad(blockTexture);
+	//drawSemiCircleSolution();
 }
 
 

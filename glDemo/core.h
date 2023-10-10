@@ -18,5 +18,9 @@
 #include <math.h>
 #include <iostream>
 #include <string>
+#include <random>
+#include <vector>
+#include "glm\vec2.hpp"
+#include "glm\vec4.hpp"
 #include "FreeImage\\FreeImage.h"
 
