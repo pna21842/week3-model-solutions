@@ -24,7 +24,7 @@ const unsigned int initHeight = 512;
 //
 // Function prototypes
 //
-GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType, GLuint srcPixelFormat = GL_BGRA);
+GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType);
 void renderScene();
 void resizeWindow(GLFWwindow* window, int width, int height);
 void keyboardHandler(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -79,8 +79,8 @@ int main() {
 	//
 
 	// Setup textures
-	playerTexture = loadTexture(string("Assets\\Textures\\player1_ship.png"), FIF_PNG, GL_BGRA);
-	blockTexture = loadTexture(string("Assets\\Textures\\mcblock01.png"), FIF_PNG, GL_BGRA);
+	playerTexture = loadTexture(string("Assets\\Textures\\player1_ship.png"), FIF_PNG);
+	blockTexture = loadTexture(string("Assets\\Textures\\mcblock01.png"), FIF_PNG);
 
 	// Setup random points
 	points = RandomPoints(100);
@@ -109,47 +109,58 @@ int main() {
 }
 
 
-GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType, GLuint srcPixelFormat) {
+GLuint loadTexture(string filename, FREE_IMAGE_FORMAT srcImageType) {
 
+	// Load and validate bitmap
+	FIBITMAP* loadedBitmap = FreeImage_Load(srcImageType, filename.c_str(), BMP_DEFAULT);
+
+	if (!loadedBitmap) {
+
+		cout << "FreeImage: Could not load image " << filename << endl;
+		return 0;
+	}
+
+	// Comvert to RGBA format
+	FIBITMAP* bitmap32bpp = FreeImage_ConvertTo32Bits(loadedBitmap);
+	FreeImage_Unload(loadedBitmap);
+
+	if (!bitmap32bpp) {
+
+		cout << "FreeImage: Conversion to 32 bits unsuccessful for image " << filename << endl;
+		return 0;
+	}
+
+	// Image loaded and converted - setup new texture object
 	GLuint newTexture = 0;
 
-	FIBITMAP* bitmap = FreeImage_Load(srcImageType, filename.c_str(), BMP_DEFAULT);
+	// If image loaded, setup new texture object in OpenGL
+	glGenTextures(1, &newTexture); // can create more than 1!
 
-	if (bitmap) {
+	if (newTexture) {
 
-		// If image loaded, setup new texture object in OpenGL
-		glGenTextures(1, &newTexture); // can create more than 1!
+		glBindTexture(GL_TEXTURE_2D, newTexture);
 
-		if (newTexture) {
+		// Setup texture image properties
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			FreeImage_GetWidth(bitmap32bpp),
+			FreeImage_GetHeight(bitmap32bpp),
+			0,
+			GL_BGRA,
+			GL_UNSIGNED_BYTE,
+			FreeImage_GetBits(bitmap32bpp));
 
-			glBindTexture(GL_TEXTURE_2D, newTexture);
-
-			// Setup texture image properties
-			glTexImage2D(
-				GL_TEXTURE_2D,
-				0,
-				GL_RGBA,
-				FreeImage_GetWidth(bitmap),
-				FreeImage_GetHeight(bitmap),
-				0,
-				srcPixelFormat,
-				GL_UNSIGNED_BYTE,
-				FreeImage_GetBits(bitmap));
-
-			// Setup texture filter and wrap properties
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-
-		// Once the texture has been setup, the image data is copied into OpenGL.  We no longer need the originally loaded image
-		FreeImage_Unload(bitmap);
+		// Setup texture filter and wrap properties
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 	}
-	else {
 
-		cout << "Error loading image " << filename << endl;
-	}
+	// Once the texture has been setup, the image data is copied into OpenGL.  We no longer need the originally loaded image
+	FreeImage_Unload(bitmap32bpp);
 
 	return newTexture;
 }
