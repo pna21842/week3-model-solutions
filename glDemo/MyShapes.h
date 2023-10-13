@@ -4,3 +4,5 @@
 
 void drawTexturedQuad(GLuint playerTexture);
 void drawSemiCircleSolution();
+void drawLShape();
+void drawLShape_OneStrip();

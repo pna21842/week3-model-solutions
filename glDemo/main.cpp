@@ -173,9 +173,11 @@ void renderScene()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//points.render();
-	points.renderTexturedPoints(playerTexture);
+	//points.renderTexturedPoints(playerTexture);
 	//drawTexturedQuad(blockTexture);
 	//drawSemiCircleSolution();
+	//drawLShape();
+	drawLShape_OneStrip();
 }
 
 

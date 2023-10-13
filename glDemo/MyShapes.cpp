@@ -86,3 +86,50 @@ void drawSemiCircleSolution() {
 
 	glEnd();
 }
+
+
+void drawLShape()
+{
+	// Draw vertical bit
+	glBegin(GL_TRIANGLE_STRIP);
+
+	glVertex2f(0.0f, 0.75f);
+	glVertex2f(0.25f, 0.75f);
+	glVertex2f(0.0f, 0.25f);
+	glVertex2f(0.25f, 0.25f);
+
+	glEnd();
+
+
+	// Draw horizontal bit
+	glBegin(GL_TRIANGLE_STRIP);
+
+	glVertex2f(0.0f, 0.0f);
+	glVertex2f(0.0f, 0.25f);
+	glVertex2f(0.75f, 0.0f);
+	glVertex2f(0.75f, 0.25f);
+
+	glEnd();
+}
+
+
+void drawLShape_OneStrip()
+{
+	glBegin(GL_TRIANGLE_STRIP);
+
+	glVertex2f(0.0f, 0.75f);
+	glVertex2f(0.25f, 0.75f);
+	glVertex2f(0.0f, 0.25f);
+	glVertex2f(0.25f, 0.25f);
+	glVertex2f(0.0f, 0.0f);
+	glVertex2f(0.25f, 0.0f);
+
+	// Duplicate last point create a degenerate triangle (just a line) that does not get rasterised (drawn).  This allows us to extend triangle strips as needed.
+	glVertex2f(0.25f, 0.0f);
+
+	glVertex2f(0.25f, 0.25f);
+	glVertex2f(0.75f, 0.0);
+	glVertex2f(0.75f, 0.25f);
+
+	glEnd();
+}
